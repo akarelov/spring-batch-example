@@ -9,6 +9,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -33,7 +34,7 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public FlatFileItemReader<Person> reader() {
+    public FlatFileItemReader<Person> reader() {//1
         return new FlatFileItemReaderBuilder<Person>()
                 .name("personItemReader")
                 .resource(new ClassPathResource("sample-data.csv"))
@@ -46,12 +47,12 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public PersonItemProcessor processor() {
+    public PersonItemProcessor processor() {//2
         return new PersonItemProcessor();
     }
 
     @Bean
-    public JdbcBatchItemWriter<Person> writer(DataSource dataSource) {
+    public JdbcBatchItemWriter<Person> writer(DataSource dataSource) {//3
         return new JdbcBatchItemWriterBuilder<Person>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
                 .sql("INSERT INTO people (first_name, last_name) VALUES (:firstName, :lastName)")
@@ -70,12 +71,15 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public Step step1(JdbcBatchItemWriter<Person> writer) {
-        return stepBuilderFactory.get("step1")
+    public Step step1(JdbcBatchItemWriter<Person> writer,
+                      PersonItemProcessor processor,
+                      FlatFileItemReader<Person> reader) {//4
+        TaskletStep step1 = stepBuilderFactory.get("step1")
                 .<Person, Person>chunk(10)
-                .reader(reader())
-                .processor(processor())
+                .reader(reader)
+                .processor(processor)
                 .writer(writer)
                 .build();
+        return step1;
     }
 }

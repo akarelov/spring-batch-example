@@ -11,7 +11,7 @@ public class PersonItemProcessor implements ItemProcessor<Person, Person> {
     private static final Logger log = LoggerFactory.getLogger(PersonItemProcessor.class);
 
     @Override
-    public Person process(final Person person) {
+    public Person process(final Person person) {//6
         final String firstName = person.getFirstName().toUpperCase();
         final String lastName = person.getLastName().toUpperCase();
 

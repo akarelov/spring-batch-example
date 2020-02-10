@@ -23,7 +23,7 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
     }
 
     @Override
-    public void afterJob(JobExecution jobExecution) {
+    public void afterJob(JobExecution jobExecution) {//7
         if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
             log.info("!!! JOB FINISHED! Time to verify the results");
 
